@@ -22,6 +22,14 @@ public class HelloController {
         );
     }
 
-
+    @GetMapping("/about")
+    public Map<String,String> about(){
+        return Map.of(
+                "project" , "Inventory management system",
+                "frontend" , "React",
+                "backend","Java",
+                "developer","himanshu"
+        );
+    }
 
 }
