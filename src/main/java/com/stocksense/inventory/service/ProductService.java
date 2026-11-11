@@ -47,10 +47,11 @@ public class ProductService {
     }
 
     public List<Product> lowStockProduct(){
-        return productRepository.findAll()
-                .stream()
-                .filter(p -> p.getQuantity() < 10)
-                .toList();
+        return productRepository.findByQuantityLessThan(10);
+    }
+
+    public List<Product> searchByName(String name){
+        return productRepository.findByNameContainingIgnoreCase(name);
     }
 
 }

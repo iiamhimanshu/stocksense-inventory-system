@@ -1,15 +1,29 @@
 package com.stocksense.inventory.model;
 
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "products")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 100)
     private String name;
-    private double price;
+
+    @Column(nullable = false , precision = 10 , scale = 2)
+    private BigDecimal price;
+
+    @Column(nullable = false)
     private int quantity;
 
     public Product(){ }     // needed by jackson
 
-    public Product(Long id, String name, double price, int quantity) {
+    public Product(Long id, String name, BigDecimal price, int quantity) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -32,11 +46,11 @@ public class Product {
         this.name = name;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

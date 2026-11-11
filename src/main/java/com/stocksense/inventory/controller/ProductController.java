@@ -56,4 +56,8 @@ public class ProductController {
         return productService.lowStockProduct();
     }
 
+    @GetMapping("/search")
+    public List<Product> getByName(@RequestParam String name){
+        return productService.searchByName(name);
+    }
 }
