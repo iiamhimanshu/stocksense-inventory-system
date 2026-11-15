@@ -1,57 +1,89 @@
 package com.stocksense.inventory.service;
 
+import com.stocksense.inventory.dto.ProductRequest;
+import com.stocksense.inventory.dto.ProductResponse;
+import com.stocksense.inventory.exception.DuplicateProductException;
+import com.stocksense.inventory.exception.ProductNotFoundException;
+import com.stocksense.inventory.mapper.ProductMapper;
 import com.stocksense.inventory.model.Product;
 import com.stocksense.inventory.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ProductService {
+
+    private static final int LOW_STOCK_THRESHOLD = 10;
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository , ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
+    public List<ProductResponse> getAllProducts(){
+        return productRepository.findAll().stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
 
-    public Optional<Product> getProductById(Long id){
-        return productRepository.findById(id);
+    public ProductResponse getProductById(Long id){
+        return productMapper.toResponse(findProductOrthrow(id));
     }
 
-    public Product createProduct(Product product){
-            product.setId(null);  // ignoring any id set by the client
-            return productRepository.save(product);
+    @Transactional
+    public ProductResponse createProduct(ProductRequest request){
+           String name = request.name().trim();
+           if(productRepository.existsByNameIgnoreCase(name)){
+               throw new DuplicateProductException(name);
+           }
+           Product saved = productRepository.save(productMapper.toEntity(request));
+           return productMapper.toResponse(saved);
     }
 
-    public Optional<Product> updateProduct(Long id , Product product){
-        return productRepository.findById(id).map(existing -> {
-            existing.setName(product.getName());
-            existing.setPrice(product.getPrice());
-            existing.setQuantity(product.getQuantity());
-            return productRepository.save(existing);
-        });
+    @Transactional
+    public ProductResponse updateProduct(Long id , ProductRequest request){
+        Product product = findProductOrthrow(id);
+        String name = request.name().trim();
+        if(productRepository.existsByNameIgnoreCaseAndIdNot(name,id)){
+            throw new DuplicateProductException(name);
+        }
+        productMapper.updateEntity(product , request);
+        return productMapper.toResponse(product);
     }
 
-    public boolean deleteProduct(Long id){
+    @Transactional
+    public void deleteProduct(Long id){
         if(!productRepository.existsById(id)){
-            return false;
+            throw new ProductNotFoundException(id);
         }
         productRepository.deleteById(id);
-        return true;
     }
 
-    public List<Product> lowStockProduct(){
-        return productRepository.findByQuantityLessThan(10);
+    public List<ProductResponse> lowStockProduct(){
+        return productRepository.findByQuantityLessThan(LOW_STOCK_THRESHOLD)
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
 
-    public List<Product> searchByName(String name){
-        return productRepository.findByNameContainingIgnoreCase(name);
+    public List<ProductResponse> searchByName(String name){
+        return productRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
+
+    private Product findProductOrthrow(Long id){
+        return productRepository.findById(id)
+                .orElseThrow(()->new ProductNotFoundException(id));
+    }
+
+
 
 }

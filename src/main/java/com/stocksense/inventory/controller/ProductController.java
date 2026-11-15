@@ -1,11 +1,16 @@
 package com.stocksense.inventory.controller;
 
+import com.stocksense.inventory.dto.ProductRequest;
+import com.stocksense.inventory.dto.ProductResponse;
 import com.stocksense.inventory.model.Product;
 import com.stocksense.inventory.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,45 +24,43 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAll(){
+    public List<ProductResponse> getAll(){
         return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getById(@PathVariable Long id){
-        return productService.getProductById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ProductResponse getById(@PathVariable Long id){
+        return productService.getProductById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Product> create(@RequestBody Product product){
-        Product saved = productService.createProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request){
+        ProductResponse created= productService.createProduct(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable Long id , @RequestBody Product product){
-        return productService.updateProduct(id,product)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ProductResponse update(@PathVariable Long id , @Valid @RequestBody ProductRequest request){
+        return productService.updateProduct(id,request);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id){
-        if(productService.deleteProduct(id)){
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/low-stock")
-    public List<Product> getLowStockProduct(){
+    public List<ProductResponse> getLowStockProduct(){
         return productService.lowStockProduct();
     }
 
     @GetMapping("/search")
-    public List<Product> getByName(@RequestParam String name){
+    public List<ProductResponse> getByName(@RequestParam String name){
         return productService.searchByName(name);
     }
 }

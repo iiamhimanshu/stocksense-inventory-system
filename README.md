@@ -1,7 +1,7 @@
 # stocksense-inventory-system
 A full stack inventory management application built with Java Spring Boot and React. Track products, categories, suppliers and stock levels through a secure REST API.
 
-**Status** -> Under active development (Phase 2: Product CRUD APIs ✅)
+**Status** -> Under active development (Phase 4 complete: DTOs, validation and error handling ✅)
 
 ## Tech Stack
 - **Backend:** Java 17, Spring Boot, Spring Data JPA, Spring Security
@@ -12,11 +12,16 @@ A full stack inventory management application built with Java Spring Boot and Re
 ## Planned Features
 
 - [x] Product CRUD APIs
-- [ ] MySQL database integration
+- [x] MySQL persistence with Spring Data JPA
+- [x] Layered architecture (controller, service, repository)
+- [x] DTOs and request validation
+- [x] Global exception handling with consistent JSON errors
+- [x] Duplicate product name protection (`409 Conflict`)
 - [ ] Categories and suppliers
+- [ ] Pagination and sorting
 - [ ] JWT authentication with roles (Admin / Staff)
 - [ ] React dashboard
-- [ ] Low-stock alerts and stock history
+- [ ] Stock history and low-stock alerts
 - [ ] Docker and deployment
 
 
@@ -30,6 +35,17 @@ A full stack inventory management application built with Java Spring Boot and Re
 | PUT | /api/products/{id} | Update a product |
 | DELETE | /api/products/{id} | Delete a product |
 | GET | /api/products/low-stock | Products with quantity under 10 |
+| GET | /api/products/search?name= | Search by name (case-insensitive) 
+
+
+| Status | When |
+|---|---|
+| `400 Bad Request` | Validation fails, malformed JSON, or an invalid parameter type |
+| `404 Not Found` | Product id does not exist |
+| `409 Conflict` | A product with the same name already exists |
+| `500 Internal Server Error` | Unexpected server error (details are logged, never returned) |
+
+
 
 ## How to Run
 
