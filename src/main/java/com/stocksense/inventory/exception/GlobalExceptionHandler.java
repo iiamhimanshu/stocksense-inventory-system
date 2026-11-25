@@ -23,8 +23,8 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handlenotFound(ProductNotFoundException ex , HttpServletRequest request){
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlenotFound(ResourceNotFoundException ex , HttpServletRequest request){
         return build(HttpStatus.NOT_FOUND , ex.getMessage() , request , null);
     }
 
@@ -54,8 +54,8 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(DuplicateProductException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(Exception ex, HttpServletRequest request){
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicate(ConflictException ex, HttpServletRequest request){
         return build(HttpStatus.CONFLICT , ex.getMessage(),request,null);
     }
 

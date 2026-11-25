@@ -2,6 +2,7 @@ package com.stocksense.inventory.mapper;
 
 import com.stocksense.inventory.dto.ProductRequest;
 import com.stocksense.inventory.dto.ProductResponse;
+import com.stocksense.inventory.model.Category;
 import com.stocksense.inventory.model.Product;
 import org.springframework.stereotype.Component;
 
@@ -21,11 +22,14 @@ public class ProductMapper {
     }
 
     public ProductResponse toResponse(Product product){
+        Category category = product.getCategory();
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getPrice(),
-                product.getQuantity()
+                product.getQuantity(),
+                category != null ? category.getId() : null,
+                category != null ? category.getName() : null
         );
     }
 }

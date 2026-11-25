@@ -36,7 +36,7 @@ A full stack inventory management application built with Java Spring Boot and Re
 | DELETE | /api/products/{id} | Delete a product |
 | GET | /api/products/low-stock | Products with quantity under 10 |
 | GET | /api/products/search?name= | Search by name (case-insensitive) 
-
+| GET | /api/categories/{id}/products | Products in a category |
 
 | Status | When |
 |---|---|

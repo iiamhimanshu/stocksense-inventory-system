@@ -21,6 +21,10 @@ public class Product {
     @Column(nullable = false)
     private int quantity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     public Product(){ }     // needed by jackson
 
     public Product(Long id, String name, BigDecimal price, int quantity) {
@@ -60,5 +64,13 @@ public class Product {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
